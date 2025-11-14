@@ -7,6 +7,12 @@ To run tests, install dependencies first:
 
 import numpy as np
 import pytest  # type: ignore[import-untyped]
+import sys
+from pathlib import Path
+
+# Add parent directory to path to import from sibling directories
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from knn import KNearestNeighbors
 from utils import l1_distance, l2_square_distance
 
