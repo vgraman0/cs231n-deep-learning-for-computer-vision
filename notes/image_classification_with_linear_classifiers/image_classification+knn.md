@@ -1,5 +1,9 @@
 # 1.1 Image classification + KNN
 
+Notes: https://cs231n.github.io/classification/
+
+Video: https://youtu.be/pdqofxJeBN8?si=mIdurz4BgXJqsbbw
+
 **Image classification:** Given a set of labels and an image, label the image.
 
 ![image.png](img/image.png)
