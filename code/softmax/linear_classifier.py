@@ -6,18 +6,19 @@ from builtins import object
 import numpy as np
 
 from softmax_loss import softmax_loss
-from ..optimizers.optimizers import sgd_step
+from optimizers.optimizers import SGD
 
 
 class LinearClassifier(object):
-    def __init__(self):
+    def __init__(self, learning_rate):
         self.W = None
+        self.optimizer = SGD(lr=learning_rate)
+        self.optimizer_state = {}
 
     def train(
         self,
         X,
         y,
-        learning_rate=1e-3,
         reg=1e-5,
         num_iters=100,
         batch_size=200,
@@ -31,7 +32,6 @@ class LinearClassifier(object):
           training samples each of dimension D.
         - y: A numpy array of shape (N,) containing training labels; y[i] = c
           means that X[i] has label 0 <= c < C for C classes.
-        - learning_rate: (float) learning rate for optimization.
         - reg: (float) regularization strength.
         - num_iters: (integer) number of steps to take when optimizing
         - batch_size: (integer) number of training examples to use at each step.
@@ -46,24 +46,21 @@ class LinearClassifier(object):
         )  # assume y takes values 0...K-1 where K is number of classes
         if self.W is None:
             # lazily initialize W
-            self.W = 0.001 * np.random.randn(dim, num_classes)
+            self.W = 0.01 * np.random.randn(dim, num_classes)
 
         # Run stochastic gradient descent to optimize W
         loss_history = []
-        for it in range(num_iters):
-            batch_idx = np.random.choice(num_train, size=batch_size, replace=True)
+        for it in range(1, num_iters+1):
+            batch_idx = np.random.choice(num_train, batch_size)
             X_batch = X[batch_idx]
             y_batch = y[batch_idx]
-            print("X_batch shape:", X_batch.shape)
-            print("y_batch shape:", y_batch.shape)
 
             # evaluate loss and gradient
             loss, grad = self.loss(X_batch, y_batch, reg)
             loss_history.append(loss)
 
             # perform parameter update
-            self.W = sgd_step(self.W, grad, {}, it, learning_rate)
-
+            self.W, self.optimizer_state = self.optimizer.step(self.W, grad, self.optimizer_state, it)
 
             if verbose and it % 100 == 0:
                 print("iteration %d / %d: loss %f" % (it, num_iters, loss))
@@ -108,14 +105,19 @@ class LinearClassifier(object):
 
     def save(self, fname):
       """Save model parameters."""
-      fpath = os.path.join(os.path.dirname(__file__), "../saved/", fname)
+      # Save in saved/ relative to current working directory
+      saved_dir = os.path.join(os.getcwd(), "saved")
+      os.makedirs(saved_dir, exist_ok=True)
+      fpath = os.path.join(saved_dir, fname)
       params = {"W": self.W}
       np.save(fpath, params)
       print(fname, "saved.")
     
     def load(self, fname):
       """Load model parameters."""
-      fpath = os.path.join(os.path.dirname(__file__), "../saved/", fname)
+      # Load from saved/ relative to current working directory
+      saved_dir = os.path.join(os.getcwd(), "saved")
+      fpath = os.path.join(saved_dir, fname)
       if not os.path.exists(fpath):
         print(fname, "not available.")
         return False
@@ -124,14 +126,6 @@ class LinearClassifier(object):
         self.W = params["W"]
         print(fname, "loaded.")
         return True
-
-
-class LinearSVM(LinearClassifier):
-    """ A subclass that uses the Multiclass SVM loss function """
-
-    def loss(self, X_batch, y_batch, reg):
-        return svm_loss_vectorized(self.W, X_batch, y_batch, reg)
-
 
 class Softmax(LinearClassifier):
     """ A subclass that uses the Softmax + Cross-entropy loss function """

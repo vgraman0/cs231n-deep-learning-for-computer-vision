@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Callable, Tuple
+from typing import Tuple
 
 def softmax_loss(W: np.ndarray, X: np.ndarray, y: np.ndarray, reg: float) -> Tuple[float, np.ndarray]:
     """
@@ -23,12 +23,12 @@ def softmax_loss(W: np.ndarray, X: np.ndarray, y: np.ndarray, reg: float) -> Tup
     log_probs = np.log(probs)
 
     data_loss = -log_probs[np.arange(num_train), y].sum() / num_train 
-    regularization_loss = reg * np.sum(W * W)
+    regularization_loss = 0.5 * reg * np.sum(W ** 2)
     loss = data_loss + regularization_loss
 
     dscores = probs.copy() # (N, C)
     dscores[np.arange(num_train), y] -= 1
-    dW = X.T.dot(dscores) / num_train + 2 * reg * W
+    dW = X.T.dot(dscores) / num_train + reg * W
     
     return loss, dW
 
