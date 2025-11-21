@@ -7,4 +7,5 @@ __pycache__/
 
 # Data files
 code/softmax/data/
+code/data/
 
