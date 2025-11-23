@@ -2,8 +2,6 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 
-import torchvision.models as models
-import torch.nn as nn
 
 class EncoderCNN(nn.Module):
     """
@@ -36,6 +34,7 @@ class EncoderCNN(nn.Module):
         features = self.fc(features)
         features = self.dropout(self.relu(features))
         return features
+
 
 class DecoderRNN(nn.Module):
     """
@@ -71,10 +70,9 @@ class DecoderRNN(nn.Module):
         embeddings = torch.cat((features.unsqueeze(0), embeddings), dim=0)
 
         hiddens, _ = self.lstm(embeddings)  # (seq_len+1, batch, hidden_size)
-        logits = self.linear(hiddens)          # (seq_len+1, batch, vocab_size)
-    
-        return logits[1:, :, :]                                   # (seq_len, batch, vocab)
+        logits = self.linear(hiddens)  # (seq_len+1, batch, vocab_size)
 
+        return logits[1:, :, :]  # (seq_len, batch, vocab)
 
 
 class ImageCaptionNet(nn.Module):
@@ -114,10 +112,9 @@ class ImageCaptionNet(nn.Module):
 
         with torch.no_grad():
             x = self.encoder(image).unsqueeze(0)  # (1,1,embed_size)
-            states = None  
+            states = None
 
             for _ in range(max_length):
-
                 hiddens, states = self.decoder.lstm(x, states)
                 output = self.decoder.linear(hiddens.unsqueeze(0))
                 predicted = output.argmax(1)
