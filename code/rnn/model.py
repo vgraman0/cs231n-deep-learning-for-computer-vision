@@ -116,17 +116,15 @@ class ImageCaptionNet(nn.Module):
 
             for _ in range(max_length):
                 hiddens, states = self.decoder.lstm(x, states)  # (1,1,H)
-                print(hiddens.shape)
-                h_t = hiddens.squeeze(0)
-                print(h_t.shape)
+                h_t = hiddens[0]
                 output = self.decoder.linear(h_t)
-                print(output.shape)
                 predicted = output.argmax(1)
-                result_caption.append(predicted.item())
 
                 x = self.decoder.embed(predicted).unsqueeze(0)
 
                 if vocabulary.itos[predicted.item()] == "<EOS>":
                     break
+
+                result_caption.append(predicted.item())
 
         return [vocabulary.itos[idx] for idx in result_caption]
