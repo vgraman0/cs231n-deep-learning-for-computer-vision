@@ -69,9 +69,12 @@ class DecoderRNN(nn.Module):
 
         embeddings = self.dropout(self.embed(captions))
         embeddings = torch.cat((features.unsqueeze(0), embeddings), dim=0)
-        hiddens, _ = self.lstm(embeddings)  # (seq_len+1, batch, hidden_size)
 
-        return self.linear(hiddens)          # (seq_len+1, batch, vocab_size)
+        hiddens, _ = self.lstm(embeddings)  # (seq_len+1, batch, hidden_size)
+        logits = self.linear(hiddens)          # (seq_len+1, batch, vocab_size)
+    
+        return logits[1:, :, :]                                   # (seq_len, batch, vocab)
+
 
 
 class ImageCaptionNet(nn.Module):
