@@ -13,7 +13,7 @@ class CocoDataset(Dataset):
         self.eos_idx = self.vocab.stoi[self.vocab.eos_token]
 
     def __len__(self):
-        len(self.coco)
+        return len(self.coco)
 
     def __getitem__(self, idx):
         img, raw_captions = self.coco[idx]
@@ -33,17 +33,20 @@ class Collator:
     def __call__(self, batch):
         images = []
         captions = []
+        lengths = []
 
         for image, caption in batch:
             images.append(image)
             captions.append(caption)
+            lengths.append(len(caption))
 
         images_tensor = torch.stack(images, dim=0)  # (B,3,H,W)
         captions_tensor = pad_sequence(
-            captions, batch_first=False, padding_value=self.pad_idx
-        )  # (T_max,B)
+            captions, batch_first=True, padding_value=self.pad_idx
+        )  # (B, T_max)
+        lengths_tensor = torch.tensor(lengths, dtype=torch.long)  # (B,)
 
-        return images_tensor, captions_tensor
+        return images_tensor, captions_tensor, lengths_tensor
 
 
 def get_loader(
