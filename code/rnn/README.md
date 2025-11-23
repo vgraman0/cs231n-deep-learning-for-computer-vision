@@ -16,3 +16,5 @@
 - Feed the image embedding and the caption tokens into an LSTM decoder.
 - At each timestep, the LSTM predicts the next word using a linear layer + softmax.
 - Training uses the ground-truth caption (“teacher forcing”); inference generates tokens one by one until `<EOS>`.
+
+Source/Inspiration: https://www.youtube.com/watch?v=y2BaTt1fxJU&t=241s

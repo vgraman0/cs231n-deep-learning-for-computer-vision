@@ -55,7 +55,7 @@ def get_loader(
     transform,
     vocab,
     batch_size=32,
-    num_workers=8,
+    num_workers=2,
     shuffle=True,
     pin_memory=True,
 ):
