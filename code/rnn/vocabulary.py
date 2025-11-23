@@ -1,6 +1,7 @@
 import re
 from collections import defaultdict
 
+
 class Vocabulary:
     def __init__(self, freq_threshold=5):
         self.pad_token = "<PAD>"
@@ -19,12 +20,9 @@ class Vocabulary:
 
         self.freq_threshold = freq_threshold
 
-
-
-
     def __len__(self):
         return len(self.itos)
-    
+
     @staticmethod
     def _tokenize(text):
         """
@@ -36,7 +34,7 @@ class Vocabulary:
         text = text.lower()
         text = re.sub(r"[^a-z0-9]+", " ", text)
         return text.strip().split()
-    
+
     def build_vocabulary(self, sentences):
         """
         Build the vocabulary from a list of caption strings.
@@ -56,5 +54,4 @@ class Vocabulary:
 
     def numericalize(self, text):
         tokens = self._tokenize(text)
-        return [self.stoi.get(token, self.unk_token) for token in tokens]
-    
+        return [self.stoi.get(token, self.stoi[self.unk_token]) for token in tokens]
