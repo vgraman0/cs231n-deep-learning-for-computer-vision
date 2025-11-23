@@ -115,8 +115,8 @@ class ImageCaptionNet(nn.Module):
             states = None
 
             for _ in range(max_length):
-                hiddens, states = self.decoder.lstm(x, states)
-                output = self.decoder.linear(hiddens.unsqueeze(0))
+                hiddens, states = self.decoder.lstm(x, states)  # (1,1,H)
+                output = self.decoder.linear(hiddens.squeeze(0))
                 predicted = output.argmax(1)
                 result_caption.append(predicted.item())
 
